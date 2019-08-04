@@ -3,9 +3,10 @@ const bodyParser = require('body-parser')
 const path = require('path')
 const app = express()
 
+const expressHbs = require('express-handlebars')
 
-
-app.set('view engine', 'pug')
+app.engine('handleBars' , expressHbs())
+app.set('view engine', 'handleBars')
 app.set('views', 'views')
 const adminData = require('./routes/admin')
 const shopRoutes = require('./routes/shop')
@@ -17,8 +18,9 @@ app.use(shopRoutes)
 
 app.use((req,res,next) => {
     // 404 error page
-    res.render('404', { docTitle: 'Page Not Found'})
-    //res.status(404).sendFile(path.join(__dirname,  'views' , 'error404.html'))
+    console.log("In the 404 Error Page")
+    res.status(404).render('404', { docTitle: 'Are You Lost?' , layout: false})
+    //res.status(404).sendFile(path.join(__dirname,  'views' , '404.html'))
 })
 
 app.listen(3000)

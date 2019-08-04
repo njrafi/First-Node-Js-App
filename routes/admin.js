@@ -6,7 +6,7 @@ const router = express.Router()
 const products = []
 
 router.get('/add-product', (req,res,next) => {
-    console.log('Int the add product directory')
+    console.log('In the add product directory')
     //res.sendFile(path.join(rootDir,'views' , 'add-product.html'))
     res.render('add-product', { docTitle: 'Add Product' , path : '/add-product'})
 })
