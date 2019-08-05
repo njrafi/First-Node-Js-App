@@ -8,7 +8,7 @@ const products = []
 router.get('/add-product', (req,res,next) => {
     console.log('In the add product directory')
     //res.sendFile(path.join(rootDir,'views' , 'add-product.html'))
-    res.render('add-product', { docTitle: 'Add Product' , path : '/add-product'})
+    res.render('add-product', { docTitle: 'Add Product' , path : '/add-product', layout: false})
 })
 
 router.post('/product' , (req,res,next) => {
