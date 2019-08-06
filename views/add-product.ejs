@@ -1,18 +1,19 @@
 <%- include('includes/head.ejs' ) %>
-    <link href="/css/products.css" rel="stylesheet" />
-    <link href="/css/forms.css" rel="stylesheet" />
-  </head>
-  <body>
-    <%- include('includes/navigation.ejs') %>
+<link href="/css/products.css" rel="stylesheet" />
+<link href="/css/forms.css" rel="stylesheet" />
+</head>
 
-    <main>
-        <form action="/product" method="POST" class="product-form">
-            <div class="form-control">
-            <label for="title"> Title </label>
-            <input type="text" name="title" id="title" />
-            </div>
+<body>
+	<%- include('includes/navigation.ejs') %>
 
-            <button type="submit">Submit</button>
-        </form>
-    </main>
-<%- include('includes/end.ejs') %>
+	<main>
+		<form action="/product" method="POST" class="product-form">
+			<div class="form-control">
+				<label for="title"> Title </label>
+				<input type="text" name="title" id="title" />
+			</div>
+
+			<button type="submit">Submit</button>
+		</form>
+	</main>
+	<%- include('includes/end.ejs') %>
