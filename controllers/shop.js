@@ -11,6 +11,12 @@ exports.getProducts = (req, res, next) => {
 	});
 };
 
+exports.getProduct = (req, res, next) => {
+	const prodId = req.params.productId;
+	console.log("Inside the shop product details page , Product id = " + prodId);
+	res.redirect("/");
+};
+
 exports.getIndex = (req, res, next) => {
 	console.log("In the Shop Index directory");
 	Product.fetchAll(products => {
@@ -32,7 +38,6 @@ exports.getCart = (req, res, next) => {
 		});
 	});
 };
-
 
 exports.getOrders = (req, res, next) => {
 	console.log("In the Shop Orders directory");
