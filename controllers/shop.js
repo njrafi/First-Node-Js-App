@@ -33,8 +33,20 @@ exports.getCart = (req, res, next) => {
 	});
 };
 
+
+exports.getOrders = (req, res, next) => {
+	console.log("In the Shop Orders directory");
+	Product.fetchAll(products => {
+		res.render("shop/orders", {
+			prods: products,
+			docTitle: "Your Orders",
+			path: "/orders"
+		});
+	});
+};
+
 exports.getCheckout = (req, res, next) => {
-	console.log("In the Shop Cart directory");
+	console.log("In the Shop Checkout directory");
 	Product.fetchAll(products => {
 		res.render("shop/checkout", {
 			prods: products,
