@@ -16,7 +16,7 @@ exports.getAddProduct = (req, res, next) => {
 	//res.sendFile(path.join(rootDir,'views' , 'add-product.html'))
 	res.render("admin/add-product", {
 		docTitle: "Add Product",
-		path: "/add-product"
+		path: "/admin/add-product"
 	});
 };
 
