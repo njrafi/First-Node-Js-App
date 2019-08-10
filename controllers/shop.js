@@ -1,28 +1,45 @@
 const Product = require("../models/product");
 
 exports.getProducts = (req, res, next) => {
-	console.log("In the Shop directory");
+	console.log("In the Shop Products directory");
 	Product.fetchAll(products => {
 		res.render("shop/product-list", {
 			prods: products,
-			docTitle: "Shop",
-			path: "/shop"
+			docTitle: "All Products",
+			path: "/products"
 		});
 	});
 };
 
-exports.getAddProduct = (req, res, next) => {
-	console.log("In the add product directory");
-	//res.sendFile(path.join(rootDir,'views' , 'add-product.html'))
-	res.render("admin/add-product", {
-		docTitle: "Add Product",
-		path: "/admin/add-product"
+exports.getIndex = (req, res, next) => {
+	console.log("In the Shop Index directory");
+	Product.fetchAll(products => {
+		res.render("shop/index", {
+			prods: products,
+			docTitle: "Shop",
+			path: "/"
+		});
 	});
 };
 
-exports.postAddProduct = (req, res, next) => {
-	console.log("In The postAddProduct call");
-	const product = new Product(req.body.title);
-	product.save();
-	res.redirect("/");
+exports.getCart = (req, res, next) => {
+	console.log("In the Shop Cart directory");
+	Product.fetchAll(products => {
+		res.render("shop/cart", {
+			prods: products,
+			docTitle: "Your Cart",
+			path: "/cart"
+		});
+	});
+};
+
+exports.getCheckout = (req, res, next) => {
+	console.log("In the Shop Cart directory");
+	Product.fetchAll(products => {
+		res.render("shop/checkout", {
+			prods: products,
+			docTitle: "Checkout",
+			path: "/checkout"
+		});
+	});
 };
