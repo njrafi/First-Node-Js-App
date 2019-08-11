@@ -1,4 +1,5 @@
 const Product = require("../models/product");
+const Cart = require("../models/cart");
 
 exports.getProducts = (req, res, next) => {
 	console.log("In the Shop Products directory");
@@ -16,9 +17,9 @@ exports.getProduct = (req, res, next) => {
 	console.log("Inside the shop product details page , Product id = " + prodId);
 	Product.findById(prodId, product => {
 		res.render("shop/product-detail", {
-            product: product,
-            docTitle: product.title,
-            path: '/products'
+			product: product,
+			docTitle: product.title,
+			path: "/products"
 		});
 	});
 };
@@ -67,10 +68,11 @@ exports.getCheckout = (req, res, next) => {
 	});
 };
 
-exports.postCart = (req,res,next) => {
-    const productId = req.body.productId
-    Product.findById(productId, product => {
-        console.log(product)
-        res.redirect('/cart')
-    })
-}
+exports.postCart = (req, res, next) => {
+	const productId = req.body.productId;
+	Product.findById(productId, product => {
+        console.log(product);
+        Cart.addProduct(product.id,product.price)
+		res.redirect("/cart");
+	});
+};
