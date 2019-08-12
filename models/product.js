@@ -30,7 +30,9 @@ module.exports = class Product {
 	save() {
 		getProductsFromFile(products => {
 			if (this.id) {
-				let existingProductIndex = products.findIndex(prod => prod.id == this.id);
+				let existingProductIndex = products.findIndex(
+					prod => prod.id == this.id
+				);
 				products[existingProductIndex] = this;
 			} else {
 				this.id = Math.random().toString();
@@ -50,6 +52,17 @@ module.exports = class Product {
 		getProductsFromFile(products => {
 			const product = products.find(p => p.id === id);
 			cb(product);
+		});
+	}
+
+	static deleteById(id) {
+		getProductsFromFile(products => {
+			// let existingProductIndex = products.findIndex(prod => prod.id == id);
+			// products.splice(existingProductIndex, 1);
+			let updatedProducts = products.filter(prod => prod.id != id);
+			fs.writeFile(p, JSON.stringify(updatedProducts), err => {
+				console.log(err);
+			});
 		});
 	}
 };
