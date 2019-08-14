@@ -3,36 +3,42 @@ const Cart = require("../models/cart");
 
 exports.getProducts = (req, res, next) => {
 	console.log("In the Shop Products directory");
-	Product.fetchAll(products => {
-		res.render("shop/product-list", {
-			prods: products,
-			docTitle: "All Products",
-			path: "/products"
-		});
-	});
+	Product.fetchAll()
+		.then(([products]) => {
+			res.render("shop/product-list", {
+				prods: products,
+				docTitle: "All Products",
+				path: "/products"
+			});
+		})
+		.catch(err => console.log(err));
 };
 
 exports.getProduct = (req, res, next) => {
 	const prodId = req.params.productId;
 	console.log("Inside the shop product details page , Product id = " + prodId);
-	Product.findById(prodId, product => {
-		res.render("shop/product-detail", {
-			product: product,
-			docTitle: product.title,
-			path: "/products"
-		});
-	});
+	Product.findById(prodId)
+		.then(([product]) => {
+			res.render("shop/product-detail", {
+				product: product[0],
+				docTitle: product[0].title,
+				path: "/product"
+			});
+		})
+		.catch(err => console.log(err));
 };
 
 exports.getIndex = (req, res, next) => {
 	console.log("In the Shop Index directory");
-	Product.fetchAll(products => {
-		res.render("shop/index", {
-			prods: products,
-			docTitle: "Shop",
-			path: "/"
-		});
-	});
+	Product.fetchAll()
+		.then(([products]) => {
+			res.render("shop/index", {
+				prods: products,
+				docTitle: "Shop",
+				path: "/"
+			});
+		})
+		.catch(err => console.log(err));
 };
 
 exports.getCart = (req, res, next) => {
