@@ -7,13 +7,30 @@ const p = path.join(
 	"cart.json"
 );
 
+// Helper function: Reading the cart to file
+const getCartFromFile = cb => {
+	fs.readFile(p, (err, fileContent) => {
+		let cart = { products: [], totalPrice: 0 };
+		if (!err && fileContent.length > 0) {
+			cart = JSON.parse(fileContent);
+		}
+		cb(cart);
+	});
+};
+
+// Helper function: Saving the cart to file
+const saveCartToFile = cart => {
+	console.log("saving new cart to file ");
+	console.log(cart);
+
+	fs.writeFile(p, JSON.stringify(cart), err => {
+		console.log(err);
+	});
+};
+
 module.exports = class Cart {
 	static addProduct(id, productPrice) {
-		fs.readFile(p, (err, fileContent) => {
-			let cart = { products: [], totalPrice: 0 };
-			if (!err && fileContent.length > 0) {
-				cart = JSON.parse(fileContent);
-			}
+		getCartFromFile(cart => {
 			let existingProductIndex = cart.products.findIndex(
 				prod => prod.id === id
 			);
@@ -25,22 +42,12 @@ module.exports = class Cart {
 			}
 			cart.totalPrice += productPrice;
 
-			console.log("saving new cart to file ");
-			console.log(cart);
-
-			fs.writeFile(p, JSON.stringify(cart), err => {
-				console.log(err);
-			});
+			saveCartToFile(cart);
 		});
 	}
 
 	static deleteProduct(id, productPrice) {
-		fs.readFile(p, (err, fileContent) => {
-			if (err) return;
-			let cart = { products: [], totalPrice: 0 };
-			if (!err && fileContent.length > 0) {
-				cart = JSON.parse(fileContent);
-			}
+		getCartFromFile(cart => {
 			let existingProductIndex = cart.products.findIndex(
 				prod => prod.id === id
 			);
@@ -49,14 +56,14 @@ module.exports = class Cart {
 				cart.totalPrice -=
 					productPrice * cart.products[existingProductIndex].quantity;
 				cart.products.splice(existingProductIndex, 1);
-            }
-            
-            console.log("saving new cart to file ");
-			console.log(cart);
-
-			fs.writeFile(p, JSON.stringify(cart), err => {
-				console.log(err);
-			});
+			}
+			saveCartToFile(cart);
 		});
+	}
+
+	static getCart(cb) {
+		getCartFromFile(cart => {
+            cb(cart)
+        });
 	}
 };
