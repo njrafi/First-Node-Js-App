@@ -6,6 +6,8 @@ const errorController = require("./controllers/error");
 const sequelize = require("./utils/database");
 const Product = require("./models/product");
 const User = require("./models/user");
+const Cart = require("./models/cart");
+const CartItem = require("./models/cart-item");
 
 app.set("view engine", "ejs");
 app.set("views", "views");
@@ -34,8 +36,13 @@ app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 app.use(errorController.get404Page);
 
+// Table RelationShips
 Product.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
 User.hasMany(Product);
+User.hasOne(Cart);
+Cart.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
+Cart.belongsToMany(Product, { through: CartItem });
+Product.belongsToMany(Cart, { through: CartItem });
 
 sequelize
 	.sync()
@@ -44,12 +51,12 @@ sequelize
 	})
 	.then(user => {
 		if (!user) {
-			User.create({ name: "NJRafi", email: "njrafibd@gmail.com" });
+			return User.create({ name: "NJRafi", email: "njrafibd@gmail.com" });
 		}
 		return user;
 	})
 	.then(user => {
-		console.log(user);
-		app.listen(3000);
+		return user.createCart();
 	})
+	.then(cart => app.listen(3000))
 	.catch(err => console.log(err));
