@@ -14,31 +14,35 @@ exports.getEditProduct = (req, res, next) => {
 	let editMode = req.query.edit;
 	const productId = req.params.productId;
 	console.log("Inside the admin edit product page , Product id = " + productId);
-	Product.findById(productId, product => {
-		if (!product) {
-			console.log(
-				"error : Could not find a product in admin edit product directory"
-			);
-			res.redirect("/");
-		}
-		res.render("admin/edit-product", {
-			docTitle: "Edit Product",
-			path: "/admin/edit-product",
-			editing: editMode,
-			product: product
-		});
-	});
+	Product.findByPk(productId)
+		.then(product => {
+			if (!product) {
+				console.log(
+					"error : Could not find a product in admin edit product directory"
+				);
+				res.redirect("/");
+			}
+			res.render("admin/edit-product", {
+				docTitle: "Edit Product",
+				path: "/admin/edit-product",
+				editing: editMode,
+				product: product
+			});
+		})
+		.catch(err => console.log(err));
 };
 
 exports.getProducts = (req, res, next) => {
 	console.log("In the Admin Products directory");
-	Product.fetchAll(products => {
-		res.render("admin/products", {
-			prods: products,
-			docTitle: "Admin Products",
-			path: "/admin/products"
-		});
-	});
+	Product.findAll()
+		.then(products => {
+			res.render("admin/products", {
+				prods: products,
+				docTitle: "Admin Products",
+				path: "/admin/products"
+			});
+		})
+		.catch(err => console.log(err));
 };
 
 exports.postAddProduct = (req, res, next) => {
@@ -47,11 +51,14 @@ exports.postAddProduct = (req, res, next) => {
 	const imageUrl = req.body.imageUrl;
 	const price = req.body.price;
 	const description = req.body.description;
-	const product = new Product(null, title, imageUrl, price, description);
-	console.log(product);
-	product
-		.save()
-		.then(() => {
+	Product.create({
+		title: title,
+		price: price,
+		imageUrl: imageUrl,
+		description: description
+	})
+		.then(result => {
+			console.log("Created a Product");
 			res.redirect("/");
 		})
 		.catch(err => console.log(err));
@@ -64,14 +71,30 @@ exports.postEditProduct = (req, res, next) => {
 	const imageUrl = req.body.imageUrl;
 	const price = req.body.price;
 	const description = req.body.description;
-	const product = new Product(id, title, imageUrl, price, description);
-	console.log(product);
-	product.save();
-	res.redirect("/admin/products");
+	Product.update(
+		{
+			title: title,
+			price: price,
+			imageUrl: imageUrl,
+			description: description
+		},
+		{ where: { id: id } }
+	)
+		.then(result => {
+			console.log(result);
+
+			res.redirect("/admin/products");
+		})
+		.catch(err => console.log(err));
 };
 
 exports.postDeleteProduct = (req, res, next) => {
 	const id = req.params.productId;
-	Product.deleteById(id);
-	res.redirect("/admin/products");
+	Product.destroy({ where: { id: id } })
+		.then(result => {
+			console.log(result);
+
+			res.redirect("/admin/products");
+		})
+		.catch(err => console.log(err));
 };
