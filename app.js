@@ -8,6 +8,8 @@ const Product = require("./models/product");
 const User = require("./models/user");
 const Cart = require("./models/cart");
 const CartItem = require("./models/cart-item");
+const Order = require("./models/order");
+const orderItem = require("./models/order-item");
 
 app.set("view engine", "ejs");
 app.set("views", "views");
@@ -43,6 +45,10 @@ User.hasOne(Cart);
 Cart.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
 Cart.belongsToMany(Product, { through: CartItem });
 Product.belongsToMany(Cart, { through: CartItem });
+Order.belongsTo(User, { constraints: true, onDelete: "CASCADE" });
+User.hasMany(Order);
+Order.belongsToMany(Product, { through: orderItem });
+Product.belongsToMany(Order, { through: orderItem });
 
 sequelize
 	.sync()

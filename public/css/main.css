@@ -20,7 +20,8 @@ form {
 }
 
 .centered {
-    text-align: center
+    text-align: center;
+    margin-top: 1rem;
 }
 
 .main-header {
