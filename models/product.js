@@ -7,22 +7,26 @@ class Product {
 		this.price = price;
 		this.description = description;
 		this.imageUrl = imageUrl;
-		this._id = ObjectId(id);
+		if (id) {
+			this._id = ObjectId(id);
+		}
 	}
 
 	save() {
 		const db = getDb();
-		let dbOp;
+		let dbOperation;
 		if (this._id) {
-			dbOp = db
+			console.log("Updating product with id" + this._id);
+			dbOperation = db
 				.collection("product")
 				.updateOne({ _id: this._id }, { $set: this });
 		} else {
-			dbOp = db.collection("product").insertOne(this);
+			console.log("adding product");
+			dbOperation = db.collection("product").insertOne(this);
 		}
-		return dbOp
+		return dbOperation
 			.then(result => {
-				console.log(result);
+				//console.log(result);
 			})
 			.catch(err => console.log(err));
 	}
@@ -48,8 +52,19 @@ class Product {
 			.next()
 			.then(product => {
 				console.log("Product model find by id ");
-				console.log(product);
 				return product;
+			})
+			.catch(err => console.log(err));
+	}
+
+	static deleteById(id) {
+		const db = getDb();
+		return db
+			.collection("product")
+			.deleteOne({ _id: ObjectId(id) })
+			.then(result => {
+				console.log("Product model deleted by id ");
+				return result;
 			})
 			.catch(err => console.log(err));
 	}
