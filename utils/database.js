@@ -5,7 +5,7 @@ let _db;
 
 const mongoConnect = callback => {
 	MongoClient.connect(
-		"mongodb+srv://njrafi:NodeJs1234@nodejscluster-zwpxh.mongodb.net/test?retryWrites=true&w=majority",
+		"mongodb+srv://njrafi:NodeJs1234@nodejscluster-zwpxh.mongodb.net/shop?retryWrites=true&w=majority",
 		{
 			useNewUrlParser: true,
 			useUnifiedTopology: true

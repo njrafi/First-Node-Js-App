@@ -14,7 +14,7 @@ exports.getEditProduct = (req, res, next) => {
 	let editMode = req.query.edit;
 	const productId = req.params.productId;
 	console.log("Inside the admin edit product page , Product id = " + productId);
-	Product.findByPk(productId)
+	Product.findById(productId)
 		.then(product => {
 			if (!product) {
 				console.log(
@@ -34,8 +34,7 @@ exports.getEditProduct = (req, res, next) => {
 
 exports.getProducts = (req, res, next) => {
 	console.log("In the Admin Products directory");
-	req.user
-		.getProducts()
+	Product.fetchAll()
 		.then(products => {
 			res.render("admin/products", {
 				prods: products,
@@ -69,18 +68,12 @@ exports.postEditProduct = (req, res, next) => {
 	const imageUrl = req.body.imageUrl;
 	const price = req.body.price;
 	const description = req.body.description;
-	Product.update(
-		{
-			title: title,
-			price: price,
-			imageUrl: imageUrl,
-			description: description
-		},
-		{ where: { id: id } }
-	)
+	const product = new Product(title, price, description, imageUrl, id);
+	product
+		.save()
 		.then(result => {
+			console.log("product updated successfully");
 			console.log(result);
-
 			res.redirect("/admin/products");
 		})
 		.catch(err => console.log(err));

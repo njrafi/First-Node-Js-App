@@ -23,8 +23,8 @@
                     <%= product.description %>
                 </p>
                 <div class="card__actions">
-                    <a class="btn" href="/admin/edit-product/<%=product.id%>?edit=true">Edit</a>
-                    <form action="/admin/delete-product/<%=product.id%>" method="POST">
+                    <a class="btn" href="/admin/edit-product/<%=product._id%>?edit=true">Edit</a>
+                    <form action="/admin/delete-product/<%=product._id%>" method="POST">
                         <button class="btn" type="submit">Delete</button>
                     </form>
                 </div>
