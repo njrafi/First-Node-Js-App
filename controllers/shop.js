@@ -59,7 +59,7 @@ exports.getCart = (req, res, next) => {
 exports.getOrders = (req, res, next) => {
 	console.log("In the Shop Orders directory");
 	req.user
-		.getOrders({ include: ["products"] })
+		.getOrders()
 		.then(orders => {
 			res.render("shop/orders", {
 				docTitle: "Your Orders",
@@ -97,8 +97,8 @@ exports.postCart = (req, res, next) => {
 
 exports.postDeleteProductFromCart = (req, res, next) => {
 	console.log("In the Shop Post Delete Product directory");
-    const id = req.body.id;
-    // TODO: Add price
+	const id = req.body.id;
+	// TODO: Add price
 	const price = req.body.price;
 
 	req.user
@@ -111,31 +111,11 @@ exports.postDeleteProductFromCart = (req, res, next) => {
 
 exports.postOrder = (req, res, next) => {
 	console.log("In the Shop post Order directory");
-	let fetchedCart;
+
 	req.user
-		.getCart()
-		.then(cart => {
-			fetchedCart = cart;
-			return cart.getProducts();
-		})
-		.then(products => {
-			console.log(products);
-			return req.user
-				.createOrder()
-				.then(order => {
-					return order.addProducts(
-						products.map(product => {
-							product.orderItem = { quantity: product.cartItem.quantity };
-							return product;
-						})
-					);
-				})
-				.catch(err => console.log(err));
-		})
+		.addOrder()
 		.then(result => {
-			return fetchedCart.setProducts(null);
-		})
-		.then(result => {
+			console.log("post order Successfully");
 			res.redirect("/orders");
 		})
 		.catch(err => console.log(err));
