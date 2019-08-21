@@ -28,8 +28,8 @@ class User {
 	addToCart(product) {
 		const cartProductIndex = this.cart.items.findIndex(cp => {
 			return cp.productId.toString() === product._id.toString();
-        });
-        console.log("Adding to Cart " + cartProductIndex)
+		});
+		console.log("Adding to Cart " + cartProductIndex);
 
 		if (cartProductIndex >= 0) {
 			this.cart.items[cartProductIndex].quantity += 1;
@@ -41,6 +41,32 @@ class User {
 		return db
 			.collection("users")
 			.updateOne({ _id: ObjectId(this._id) }, { $set: this });
+	}
+
+	getCart() {
+		const db = getDb();
+		const productIds = this.cart.items.map(item => {
+			return item.productId;
+		});
+		console.log("In get cart : Product Ids ");
+		console.log(productIds);
+		return db
+			.collection("product")
+			.find({ _id: { $in: productIds } })
+			.toArray()
+			.then(products => {
+				console.log("in get Cart: Product List ");
+				console.log(products);
+				return products.map(product => {
+					return {
+						...product,
+						quantity: this.cart.items.find(item => {
+							return item.productId.toString() == product._id.toString();
+						}).quantity
+					};
+				});
+			})
+			.catch(err => console.log(err));
 	}
 
 	static findById(id) {
