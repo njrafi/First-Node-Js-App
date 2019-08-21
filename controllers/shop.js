@@ -97,18 +97,12 @@ exports.postCart = (req, res, next) => {
 
 exports.postDeleteProductFromCart = (req, res, next) => {
 	console.log("In the Shop Post Delete Product directory");
-	const id = req.body.id;
+    const id = req.body.id;
+    // TODO: Add price
 	const price = req.body.price;
 
 	req.user
-		.getCart()
-		.then(cart => {
-			return cart.getProducts({ where: { id: id } });
-		})
-		.then(products => {
-			const product = products[0];
-			return product.cartItem.destroy();
-		})
+		.deleteFromCart(id)
 		.then(result => {
 			res.redirect("/cart");
 		})
