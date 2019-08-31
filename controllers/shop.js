@@ -2,7 +2,7 @@ const Product = require("../models/product");
 
 exports.getProducts = (req, res, next) => {
 	console.log("In the Shop Products directory");
-	Product.fetchAll()
+	Product.find()
 		.then(products => {
 			res.render("shop/product-list", {
 				prods: products,
@@ -29,7 +29,7 @@ exports.getProduct = (req, res, next) => {
 
 exports.getIndex = (req, res, next) => {
 	console.log("In the Shop Index directory");
-	Product.fetchAll()
+	Product.find()
 		.then(products => {
 			res.render("shop/index", {
 				prods: products,
