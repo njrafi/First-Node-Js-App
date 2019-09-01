@@ -73,16 +73,15 @@ exports.postEditProduct = (req, res, next) => {
 	const imageUrl = req.body.imageUrl;
 	const price = req.body.price;
 	const description = req.body.description;
-	const product = new Product(
-		title,
-		price,
-		description,
-		imageUrl,
-		id,
-		req.user._id
-	);
-	product
-		.save()
+
+	Product.findById(id)
+		.then(product => {
+			product.title = title;
+			product.imageUrl = imageUrl;
+			product.price = price;
+			product.description = description;
+			return product.save();
+		})
 		.then(result => {
 			console.log("product updated successfully");
 			console.log(result);
@@ -93,7 +92,9 @@ exports.postEditProduct = (req, res, next) => {
 
 exports.postDeleteProduct = (req, res, next) => {
 	const id = req.params.productId;
-	Product.deleteById(id)
+	console.log("In The postDeleteproduct call");
+	console.log("product id " + id);
+	Product.findByIdAndDelete(id)
 		.then(result => {
 			console.log("product deleted successfully");
 			res.redirect("/admin/products");

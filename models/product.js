@@ -40,50 +40,50 @@ module.exports = mongoose.model("Product", productSchema);
 // 		}
 // 	}
 
-// 	save() {
-// 		const db = getDb();
-// 		let dbOperation;
-// 		if (this._id) {
-// 			console.log("Updating product with id" + this._id);
-// 			dbOperation = db
-// 				.collection("product")
-// 				.updateOne({ _id: this._id }, { $set: this });
-// 		} else {
-// 			console.log("adding product");
-// 			dbOperation = db.collection("product").insertOne(this);
-// 		}
-// 		return dbOperation
-// 			.then(result => {
-// 				//console.log(result);
-// 			})
-// 			.catch(err => console.log(err));
-// 	}
-
-// 	static fetchAll() {
-// 		const db = getDb();
-// 		return db
+// save() {
+// 	const db = getDb();
+// 	let dbOperation;
+// 	if (this._id) {
+// 		console.log("Updating product with id" + this._id);
+// 		dbOperation = db
 // 			.collection("product")
-// 			.find()
-// 			.toArray()
-// 			.then(products => {
-// 				console.log(products);
-// 				return products;
-// 			})
-// 			.catch(err => console.log(err));
+// 			.updateOne({ _id: this._id }, { $set: this });
+// 	} else {
+// 		console.log("adding product");
+// 		dbOperation = db.collection("product").insertOne(this);
 // 	}
+// 	return dbOperation
+// 		.then(result => {
+// 			//console.log(result);
+// 		})
+// 		.catch(err => console.log(err));
+// }
 
-// 	static findById(id) {
-// 		const db = getDb();
-// 		return db
-// 			.collection("product")
-// 			.find({ _id: ObjectId(id) })
-// 			.next()
-// 			.then(product => {
-// 				console.log("Product model find by id ");
-// 				return product;
-// 			})
-// 			.catch(err => console.log(err));
-// 	}
+// static fetchAll() {
+// 	const db = getDb();
+// 	return db
+// 		.collection("product")
+// 		.find()
+// 		.toArray()
+// 		.then(products => {
+// 			console.log(products);
+// 			return products;
+// 		})
+// 		.catch(err => console.log(err));
+// }
+
+// static findById(id) {
+// 	const db = getDb();
+// 	return db
+// 		.collection("product")
+// 		.find({ _id: ObjectId(id) })
+// 		.next()
+// 		.then(product => {
+// 			console.log("Product model find by id ");
+// 			return product;
+// 		})
+// 		.catch(err => console.log(err));
+// }
 
 // 	static deleteById(id) {
 // 		const db = getDb();
