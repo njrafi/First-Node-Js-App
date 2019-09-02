@@ -1,4 +1,5 @@
 const Product = require("../models/product");
+const Order = require("../models/order");
 
 exports.getProducts = (req, res, next) => {
 	console.log("In the Shop Products directory");
@@ -44,8 +45,11 @@ exports.getCart = (req, res, next) => {
 	console.log("In the Shop Cart directory");
 
 	req.user
-		.getCart()
-		.then(cartProducts => {
+		.populate("cart.items.productId")
+		.execPopulate()
+		.then(user => {
+			console.log(user.cart.items);
+			const cartProducts = user.cart.items;
 			console.log(cartProducts);
 			res.render("shop/cart", {
 				products: cartProducts,
@@ -57,10 +61,10 @@ exports.getCart = (req, res, next) => {
 };
 
 exports.getOrders = (req, res, next) => {
-	console.log("In the Shop Orders directory");
-	req.user
-		.getOrders()
+    console.log("In the Shop Orders directory");
+    Order.find({ "user.userId": req.user._id })
 		.then(orders => {
+            console.log(orders)
 			res.render("shop/orders", {
 				docTitle: "Your Orders",
 				path: "/orders",
@@ -111,12 +115,40 @@ exports.postDeleteProductFromCart = (req, res, next) => {
 
 exports.postOrder = (req, res, next) => {
 	console.log("In the Shop post Order directory");
-
 	req.user
-		.addOrder()
+		.populate("cart.items.productId")
+		.execPopulate()
+		.then(user => {
+			console.log(user.cart.items);
+			const products = user.cart.items.map(i => {
+				return { quantity: i.quantity, product: { ...i.productId._doc } };
+			});
+
+			const order = new Order({
+				products: products,
+				user: {
+					userId: req.user._id,
+					name: req.user.name
+				}
+			});
+			console.log(order);
+			return order.save();
+		})
+		.then(result => {
+			req.user.cart.items = [];
+			return req.user.save();
+		})
 		.then(result => {
 			console.log("post order Successfully");
 			res.redirect("/orders");
 		})
 		.catch(err => console.log(err));
+
+	// req.user
+	// 	.addOrder()
+	// 	.then(result => {
+	// 		console.log("post order Successfully");
+	// 		res.redirect("/orders");
+	// 	})
+	// 	.catch(err => console.log(err));
 };
