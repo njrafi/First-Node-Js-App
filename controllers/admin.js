@@ -34,7 +34,7 @@ exports.getEditProduct = (req, res, next) => {
 
 exports.getProducts = (req, res, next) => {
 	console.log("In the Admin Products directory");
-	Product.find()
+    Product.find()
 		.then(products => {
 			res.render("admin/products", {
 				prods: products,
@@ -55,7 +55,8 @@ exports.postAddProduct = (req, res, next) => {
 		title: title,
 		price: price,
 		description: description,
-		imageUrl: imageUrl
+        imageUrl: imageUrl,
+        userId: req.user._id
 	});
 	product
 		.save()
