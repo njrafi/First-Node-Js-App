@@ -29,10 +29,3 @@ const orderSchema = new Schema({
 });
 
 module.exports = mongoose.model("Order", orderSchema);
-
-// 				const order = {
-// 					items: products,
-// 					user: {
-// 						_id: ObjectId(this._id),
-// 						name: this.name
-// 					}
