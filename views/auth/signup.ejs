@@ -1,0 +1,27 @@
+<%- include('../includes/head.ejs' ) %>
+<link href="/css/forms.css" rel="stylesheet" />
+<link href="/css/auth.css" rel="stylesheet" />
+</head>
+
+<body>
+    <%- include('../includes/navigation.ejs') %>
+
+    <main>
+        <form action="/signup" method="POST" class="login-form">
+            <div class="form-control">
+                <label for="email"> Email </label>
+                <input type="email" name="email" id="email" />
+            </div>
+            <div class="form-control">
+                <label for="password"> Password </label>
+                <input type="password" name="password" id="password" />
+            </div>
+            <div class="form-control">
+                <label for="confirmPassword"> Confirm Password </label>
+                <input type="password" name="confirmPassword" id="confirmPassword" />
+            </div>
+
+            <button type="submit" class='btn'> Sign Up </button>
+        </form>
+    </main>
+    <%- include('../includes/end.ejs') %>

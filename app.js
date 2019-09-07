@@ -63,22 +63,6 @@ mongoose
 	})
 	.then(result => {
 		console.log("connected to mongoDb Database");
-		return User.findOne();
-	})
-	.then(user => {
-		if (!user) {
-			const user = new User({
-				name: "NJRafi",
-				email: "njrafibd@gmail.com",
-				cart: {
-					items: []
-				}
-			});
-			return user.save();
-		}
-		return;
-	})
-	.then(result => {
 		console.log("server started at port 3000");
 		app.listen(3000);
 	})

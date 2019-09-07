@@ -3,11 +3,11 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
-	name: {
+	email: {
 		type: String,
 		required: true
 	},
-	email: {
+	password: {
 		type: String,
 		required: true
 	},
@@ -43,8 +43,8 @@ userSchema.methods.addToCart = function(product) {
 userSchema.methods.deleteFromCart = function(id) {
 	this.cart.items = this.cart.items.filter(item => {
 		return item.productId.toString() != id.toString();
-    });
-    return this.save()
+	});
+	return this.save();
 };
 
 module.exports = mongoose.model("User", userSchema);
