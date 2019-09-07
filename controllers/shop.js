@@ -8,7 +8,8 @@ exports.getProducts = (req, res, next) => {
 			res.render("shop/product-list", {
 				prods: products,
 				docTitle: "All Products",
-				path: "/products"
+				path: "/products",
+				isLoggedIn: req.session.isLoggedIn
 			});
 		})
 		.catch(err => console.log(err));
@@ -22,7 +23,8 @@ exports.getProduct = (req, res, next) => {
 			res.render("shop/product-detail", {
 				product: product,
 				docTitle: product.title,
-				path: "/product"
+				path: "/product",
+				isLoggedIn: req.session.isLoggedIn
 			});
 		})
 		.catch(err => console.log(err));
@@ -35,7 +37,8 @@ exports.getIndex = (req, res, next) => {
 			res.render("shop/index", {
 				prods: products,
 				docTitle: "Shop",
-				path: "/"
+				path: "/",
+				isLoggedIn: req.session.isLoggedIn
 			});
 		})
 		.catch(err => console.log(err));
@@ -54,21 +57,23 @@ exports.getCart = (req, res, next) => {
 			res.render("shop/cart", {
 				products: cartProducts,
 				docTitle: "Your Cart",
-				path: "/cart"
+				path: "/cart",
+				isLoggedIn: req.session.isLoggedIn
 			});
 		})
 		.catch(err => console.log(err));
 };
 
 exports.getOrders = (req, res, next) => {
-    console.log("In the Shop Orders directory");
-    Order.find({ "user.userId": req.user._id })
+	console.log("In the Shop Orders directory");
+	Order.find({ "user.userId": req.user._id })
 		.then(orders => {
-            console.log(orders)
+			console.log(orders);
 			res.render("shop/orders", {
 				docTitle: "Your Orders",
 				path: "/orders",
-				orders: orders
+				orders: orders,
+				isLoggedIn: req.session.isLoggedIn
 			});
 		})
 		.catch(err => console.log(err));
@@ -80,7 +85,8 @@ exports.getCheckout = (req, res, next) => {
 		res.render("shop/checkout", {
 			prods: products,
 			docTitle: "Checkout",
-			path: "/checkout"
+			path: "/checkout",
+			isLoggedIn: req.session.isLoggedIn
 		});
 	});
 };
@@ -143,12 +149,4 @@ exports.postOrder = (req, res, next) => {
 			res.redirect("/orders");
 		})
 		.catch(err => console.log(err));
-
-	// req.user
-	// 	.addOrder()
-	// 	.then(result => {
-	// 		console.log("post order Successfully");
-	// 		res.redirect("/orders");
-	// 	})
-	// 	.catch(err => console.log(err));
 };

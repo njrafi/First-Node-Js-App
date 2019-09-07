@@ -2,7 +2,17 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const path = require("path");
+const session = require("express-session");
+const mongoDbStore = require("connect-mongodb-session")(session);
+
+const mongoDbUri =
+	"mongodb+srv://njrafi:NodeJs1234@nodejscluster-zwpxh.mongodb.net/shop?retryWrites=true&w=majority";
 const app = express();
+const store = new mongoDbStore({
+	uri: mongoDbUri,
+	collection: "sessions"
+});
+
 const errorController = require("./controllers/error");
 
 const User = require("./models/user");
@@ -19,6 +29,14 @@ app.use(
 );
 
 app.use(express.static(path.join(__dirname, "public")));
+app.use(
+	session({
+		secret: "my secret",
+		resave: false,
+		saveUninitialized: false,
+		store: store
+	})
+);
 
 app.use((req, res, next) => {
 	User.findById("5d6be527eaefe92208523bbb")
@@ -38,13 +56,10 @@ app.use(authRoutes);
 app.use(errorController.get404Page);
 
 mongoose
-	.connect(
-		"mongodb+srv://njrafi:NodeJs1234@nodejscluster-zwpxh.mongodb.net/shop?retryWrites=true&w=majority",
-		{
-			useNewUrlParser: true,
-			useUnifiedTopology: true
-		}
-	)
+	.connect(mongoDbUri, {
+		useNewUrlParser: true,
+		useUnifiedTopology: true
+	})
 	.then(result => {
 		console.log("connected to mongoDb Database");
 		return User.findOne();
