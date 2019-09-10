@@ -5,6 +5,7 @@ const path = require("path");
 const session = require("express-session");
 const mongoDbStore = require("connect-mongodb-session")(session);
 const csrf = require("csurf");
+const flush = require("connect-flash");
 
 const mongoDbUri =
 	"mongodb+srv://njrafi:NodeJs1234@nodejscluster-zwpxh.mongodb.net/shop?retryWrites=true&w=majority";
@@ -40,7 +41,7 @@ app.use(
 	})
 );
 app.use(csrfProtection);
-
+app.use(flush());
 app.use((req, res, next) => {
 	if (!req.session.user) {
 		return next();

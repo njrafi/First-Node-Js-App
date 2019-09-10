@@ -7,7 +7,7 @@ exports.getLogin = (req, res, next) => {
 	res.render("auth/login", {
 		docTitle: "login",
 		path: "/login",
-		isLoggedIn: req.session.isLoggedIn
+		errorMessage: req.flash("error")
 	});
 };
 
@@ -16,8 +16,8 @@ exports.getSignUp = (req, res, next) => {
 	console.log(req.session);
 	res.render("auth/signup", {
 		docTitle: "Sign Up",
-		path: "/signup",
-		isLoggedIn: req.session.isLoggedIn
+        path: "/signup",
+        errorMessage: req.flash("error")
 	});
 };
 
@@ -29,6 +29,7 @@ exports.postLogin = (req, res, next) => {
 		.then(user => {
 			if (!user) {
 				console.log("could not find the user");
+				req.flash("error", "Invalid Email");
 				return res.redirect("/login");
 			}
 			console.log("Found User: " + user._id + " " + user.email);
@@ -37,7 +38,8 @@ exports.postLogin = (req, res, next) => {
 				.compare(password, user.password)
 				.then(mathed => {
 					if (!mathed) {
-						console.log("Wrong Password");
+                        console.log("Wrong Password");
+                        req.flash("error", "Wrong Password");
 						return res.redirect("/login");
 					}
 					req.session.user = user;
@@ -58,11 +60,17 @@ exports.postSignUp = (req, res, next) => {
 	console.log("In Post Sign Up");
 	const email = req.body.email;
 	const password = req.body.password;
-	const confirmPassword = req.body.confirmPassword;
+    const confirmPassword = req.body.confirmPassword;
+    if (password != confirmPassword) {
+        req.flash("error", "Passwords Does not Match");
+        return res.redirect("/signup");
+    }
+
 	User.findOne({ email: email })
 		.then(user => {
 			if (user) {
-				console.log("User already exists");
+                console.log("User already exists");
+                req.flash("error", "User already exists");
 				return res.redirect("/login");
 			}
 			return bcrypt
