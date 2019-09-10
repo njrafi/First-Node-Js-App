@@ -5,7 +5,7 @@ exports.getAddProduct = (req, res, next) => {
 	res.render("admin/edit-product", {
 		docTitle: "Add Product",
 		path: "/admin/add-product",
-        editing: false
+		editing: false
 	});
 };
 
@@ -34,7 +34,7 @@ exports.getEditProduct = (req, res, next) => {
 
 exports.getProducts = (req, res, next) => {
 	console.log("In the Admin Products directory");
-    Product.find()
+	Product.find()
 		.then(products => {
 			res.render("admin/products", {
 				prods: products,
@@ -55,8 +55,8 @@ exports.postAddProduct = (req, res, next) => {
 		title: title,
 		price: price,
 		description: description,
-        imageUrl: imageUrl,
-        userId: req.user._id
+		imageUrl: imageUrl,
+		userId: req.user._id
 	});
 	product
 		.save()
@@ -98,6 +98,9 @@ exports.postDeleteProduct = (req, res, next) => {
 	Product.findByIdAndDelete(id)
 		.then(result => {
 			console.log("product deleted successfully");
+			return req.user.deleteFromCart(id);
+		})
+		.then(result => {
 			res.redirect("/admin/products");
 		})
 		.catch(err => console.log(err));
