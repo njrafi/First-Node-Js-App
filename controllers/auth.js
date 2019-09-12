@@ -7,8 +7,7 @@ const secrets = require("../secrets");
 const transporter = nodemailer.createTransport(
 	sendGridTransport({
 		auth: {
-			api_key:
-				secrets.sendGridApi
+			api_key: secrets.sendGridApi
 		}
 	})
 );
@@ -142,7 +141,7 @@ exports.postReset = (req, res, next) => {
 			.then(user => {
 				if (!user) {
 					req.flash("error", "Could not find any user!");
-					res.redirect("/reset");
+					return res.redirect("/reset");
 				}
 				user.resetToken = token;
 				user.resetTokenExpiration = Date.now() + 3600 * 1000; // 1 hour
@@ -156,11 +155,75 @@ exports.postReset = (req, res, next) => {
 					subject: "Password reset",
 					html: `
                         <p> You requested a password request </p>
-                        <p> Click this <a href="http://localhost:3000/reset/${token} " >link</a> to set a new password. </p>
+                        <p> Click this <a href="${secrets.host}:${secrets.port}/reset/${token}" >link</a> to set a new password. </p>
 
                     `
 				});
 			})
+			.then(result => {
+				console.log("reset mail sent successfully");
+				console.log(result);
+			})
 			.catch(err => console.log(err));
 	});
+};
+
+exports.getNewPassword = (req, res, next) => {
+	const token = req.params.token;
+	User.findOne({ resetToken: token, resetTokenExpiration: { $gt: Date.now() } })
+		.then(user => {
+			if (!user) {
+				req.flash("error", "invalid token");
+				res.redirect("/reset");
+			}
+			res.render("auth/new-password", {
+				docTitle: "Set New Password",
+				path: "/new-password",
+				errorMessage: req.flash("error"),
+				userId: user._id.toString()
+			});
+		})
+		.catch(err => console.log(err));
+};
+
+exports.postNewPassword = (req, res, next) => {
+	const password = req.body.password;
+	const confirmPassword = req.body.confirmPassword;
+	const userId = req.body.userId;
+	if (password != confirmPassword) {
+		req.flash("error", "Passwords Does not Match.Try Again");
+		return res.redirect("/login");
+	}
+
+	User.findOne({ _id: userId })
+		.then(user => {
+			if (!user) {
+				req.flash("error", "Could not find user");
+				return res.redirect("/login");
+			}
+			return bcrypt
+				.hash(password, 12)
+				.then(hashedPassword => {
+					user.password = hashedPassword;
+					return user.save();
+				})
+				.then(result => {
+					res.redirect("/login");
+					return transporter.sendMail({
+						to: user.email,
+						from: "admin@node-shop.com",
+						subject: "Password reset successfull",
+						html: `
+                        <p> Your password reset is successful </p>
+                        <p> You can login now </p>
+                    `
+					});
+				})
+				.then(result => {
+					console.log("reset successful mail sent successfully");
+					console.log(result);
+				})
+				.catch(err => console.log(err));
+		})
+		.catch(err => console.log(err));
 };
