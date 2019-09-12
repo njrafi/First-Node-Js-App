@@ -180,7 +180,8 @@ exports.getNewPassword = (req, res, next) => {
 				docTitle: "Set New Password",
 				path: "/new-password",
 				errorMessage: req.flash("error"),
-				userId: user._id.toString()
+				userId: user._id.toString(),
+				token: token
 			});
 		})
 		.catch(err => console.log(err));
@@ -190,12 +191,17 @@ exports.postNewPassword = (req, res, next) => {
 	const password = req.body.password;
 	const confirmPassword = req.body.confirmPassword;
 	const userId = req.body.userId;
+	const token = req.body.token;
 	if (password != confirmPassword) {
 		req.flash("error", "Passwords Does not Match.Try Again");
-		return res.redirect("/login");
+		return res.redirect("/reset/" + token);
 	}
 
-	User.findOne({ _id: userId })
+	User.findOne({
+		resetToken: token,
+		resetTokenExpiration: { $gt: Date.now() },
+		_id: userId
+	})
 		.then(user => {
 			if (!user) {
 				req.flash("error", "Could not find user");
@@ -205,6 +211,8 @@ exports.postNewPassword = (req, res, next) => {
 				.hash(password, 12)
 				.then(hashedPassword => {
 					user.password = hashedPassword;
+					user.resetToken = undefined;
+					user.resetTokenExpiration = undefined;
 					return user.save();
 				})
 				.then(result => {

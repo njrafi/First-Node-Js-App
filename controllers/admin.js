@@ -34,7 +34,7 @@ exports.getEditProduct = (req, res, next) => {
 
 exports.getProducts = (req, res, next) => {
 	console.log("In the Admin Products directory");
-	Product.find()
+	Product.find({ userId: req.user._id })
 		.then(products => {
 			res.render("admin/products", {
 				prods: products,
