@@ -77,16 +77,21 @@ exports.postEditProduct = (req, res, next) => {
 
 	Product.findById(id)
 		.then(product => {
+			if (product.userId.toString() != req.user._id.toString()) {
+				console.log(product.userId);
+				console.log(req.user._id);
+				console.log("trying to edit other's product");
+				return res.redirect("/");
+			}
 			product.title = title;
 			product.imageUrl = imageUrl;
 			product.price = price;
 			product.description = description;
-			return product.save();
-		})
-		.then(result => {
-			console.log("product updated successfully");
-			console.log(result);
-			res.redirect("/admin/products");
+			return product.save().then(result => {
+				console.log("product updated successfully");
+				console.log(result);
+				res.redirect("/admin/products");
+			});
 		})
 		.catch(err => console.log(err));
 };
@@ -95,13 +100,17 @@ exports.postDeleteProduct = (req, res, next) => {
 	const id = req.params.productId;
 	console.log("In The postDeleteproduct call");
 	console.log("product id " + id);
-	Product.findByIdAndDelete(id)
+	Product.deleteOne({ _id: id, userId: req.user._id })
 		.then(result => {
-			console.log("product deleted successfully");
-			return req.user.deleteFromCart(id);
-		})
-		.then(result => {
-			res.redirect("/admin/products");
+			if (result) {
+				console.log("product deleted successfully");
+				return req.user.deleteFromCart(id).then(result => {
+					res.redirect("/admin/products");
+				});
+			} else {
+				console.log("trying to delete other's product");
+				return res.redirect("/");
+			}
 		})
 		.catch(err => console.log(err));
 };
