@@ -6,9 +6,11 @@ const session = require("express-session");
 const mongoDbStore = require("connect-mongodb-session")(session);
 const csrf = require("csurf");
 const flush = require("connect-flash");
+const secrets = require("./secrets");
 
 const mongoDbUri =
-	"mongodb+srv://njrafi:NodeJs1234@nodejscluster-zwpxh.mongodb.net/shop?retryWrites=true&w=majority";
+    secrets.mongoDbUri
+    
 const app = express();
 const store = new mongoDbStore({
 	uri: mongoDbUri,
@@ -34,7 +36,7 @@ app.use(
 app.use(express.static(path.join(__dirname, "public")));
 app.use(
 	session({
-		secret: "my secret",
+		secret: secrets.sessionSecretKey,
 		resave: false,
 		saveUninitialized: false,
 		store: store
@@ -72,7 +74,7 @@ mongoose
 	})
 	.then(result => {
 		console.log("connected to mongoDb Database");
-		console.log("server started at port 3000");
-		app.listen(3000);
+		console.log("server started at port " + secrets.port);
+		app.listen(secrets.port);
 	})
 	.catch(err => console.log(err));
