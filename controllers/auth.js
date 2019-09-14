@@ -11,6 +11,7 @@ const transporter = nodemailer.createTransport(
 		}
 	})
 );
+const { validationResult } = require("express-validator/check");
 
 exports.getLogin = (req, res, next) => {
 	console.log("In Login Page");
@@ -18,7 +19,8 @@ exports.getLogin = (req, res, next) => {
 	res.render("auth/login", {
 		docTitle: "login",
 		path: "/login",
-		errorMessage: req.flash("error")
+		errorMessage: req.flash("error"),
+		oldInput: { email: "", password: "" }
 	});
 };
 
@@ -46,6 +48,18 @@ exports.postLogin = (req, res, next) => {
 	console.log("In Post Login");
 	const email = req.body.email;
 	const password = req.body.password;
+
+	const errors = validationResult(req);
+	if (!errors.isEmpty()) {
+		console.log(errors.array());
+		return res.status(422).render("auth/login", {
+			docTitle: "login",
+			path: "/login",
+			errorMessage: errors.array()[0].msg,
+			oldInput: { email: email, password: password }
+		});
+	}
+
 	User.findOne({ email: email })
 		.then(user => {
 			if (!user) {
@@ -82,41 +96,39 @@ exports.postSignUp = (req, res, next) => {
 	const email = req.body.email;
 	const password = req.body.password;
 	const confirmPassword = req.body.confirmPassword;
-	if (password != confirmPassword) {
-		req.flash("error", "Passwords Does not Match");
-		return res.redirect("/signup");
+
+	const errors = validationResult(req);
+	if (!errors.isEmpty()) {
+		console.log(errors.array());
+		return res.status(422).render("auth/signup", {
+			docTitle: "Sign Up",
+			path: "/signup",
+			errorMessage: errors.array()[0].msg,
+			oldInput: { email: email, password: password }
+		});
 	}
 
-	User.findOne({ email: email })
-		.then(user => {
-			if (user) {
-				console.log("User already exists");
-				req.flash("error", "User already exists");
-				return res.redirect("/login");
-			}
-			return bcrypt
-				.hash(password, 12)
-				.then(hashedPassword => {
-					// Creating a new user
-					const newUser = new User({
-						email: email,
-						password: hashedPassword
-					});
-					return newUser.save();
-				})
-				.then(result => {
-					res.redirect("/login");
-					return transporter.sendMail({
-						to: email,
-						from: "admin@node-shop.com",
-						subject: "signUp succeded",
-						html: "<h1> You successfully signed up </h1>"
-					});
-				})
-				.then(result => {
-					console.log(result);
-				})
-				.catch(err => console.log(err));
+	bcrypt
+		.hash(password, 12)
+		.then(hashedPassword => {
+			// Creating a new user
+			const newUser = new User({
+				email: email,
+				password: hashedPassword
+			});
+			return newUser.save();
+		})
+		.then(result => {
+			res.redirect("/login");
+			return transporter.sendMail({
+				to: email,
+				from: "admin@node-shop.com",
+				subject: "signUp succeded",
+				html: "<h1> You successfully signed up </h1>"
+			});
+		})
+		.then(result => {
+			console.log(result);
 		})
 		.catch(err => console.log(err));
 };
