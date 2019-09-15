@@ -20,7 +20,8 @@ exports.getLogin = (req, res, next) => {
 		docTitle: "login",
 		path: "/login",
 		errorMessage: req.flash("error"),
-		oldInput: { email: "", password: "" }
+		oldInput: { email: "", password: "" },
+		validationErrors: []
 	});
 };
 
@@ -30,7 +31,8 @@ exports.getSignUp = (req, res, next) => {
 	res.render("auth/signup", {
 		docTitle: "Sign Up",
 		path: "/signup",
-		errorMessage: req.flash("error")
+		errorMessage: req.flash("error"),
+		validationErrors: []
 	});
 };
 
@@ -56,7 +58,8 @@ exports.postLogin = (req, res, next) => {
 			docTitle: "login",
 			path: "/login",
 			errorMessage: errors.array()[0].msg,
-			oldInput: { email: email, password: password }
+			oldInput: { email: email, password: password },
+			validationErrors: errors.array()
 		});
 	}
 
@@ -104,7 +107,8 @@ exports.postSignUp = (req, res, next) => {
 			docTitle: "Sign Up",
 			path: "/signup",
 			errorMessage: errors.array()[0].msg,
-			oldInput: { email: email, password: password }
+			oldInput: { email: email, password: password },
+			validationErrors: errors.array()
 		});
 	}
 
