@@ -6,8 +6,8 @@ exports.getAddProduct = (req, res, next) => {
 	res.render("admin/edit-product", {
 		docTitle: "Add Product",
 		path: "/admin/add-product",
-        editing: false,
-        hasError: false,
+		editing: false,
+		hasError: false,
 		errorMessage: req.flash("error"),
 		validationErrors: []
 	});
@@ -30,13 +30,18 @@ exports.getEditProduct = (req, res, next) => {
 				docTitle: "Edit Product",
 				path: "/admin/edit-product",
 				editing: editMode,
-                product: product,
-                hasError: false,
+				product: product,
+				hasError: false,
 				errorMessage: req.flash("error"),
 				validationErrors: []
 			});
 		})
-		.catch(err => console.log(err));
+		.catch(err => {
+			console.log(err);
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			next(error);
+		});
 };
 
 exports.getProducts = (req, res, next) => {
@@ -49,7 +54,12 @@ exports.getProducts = (req, res, next) => {
 				path: "/admin/products"
 			});
 		})
-		.catch(err => console.log(err));
+		.catch(err => {
+			console.log(err);
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			next(error);
+		});
 };
 
 exports.postAddProduct = (req, res, next) => {
@@ -68,12 +78,12 @@ exports.postAddProduct = (req, res, next) => {
 
 	const errors = validationResult(req);
 	if (!errors.isEmpty()) {
-        console.log(errors.array())
+		console.log(errors.array());
 		return res.status(422).render("admin/edit-product", {
 			docTitle: "Add Product",
 			path: "/admin/edit-product",
-            editing: false,
-            hasError: true,
+			editing: false,
+			hasError: true,
 			product: product,
 			errorMessage: errors.array()[0].msg,
 			validationErrors: errors.array()
@@ -88,7 +98,12 @@ exports.postAddProduct = (req, res, next) => {
 			console.log("Product saved successfully");
 			res.redirect("/admin/products");
 		})
-		.catch(err => console.log(err));
+		.catch(err => {
+			console.log(err);
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			next(error);
+		});
 };
 
 exports.postEditProduct = (req, res, next) => {
@@ -104,8 +119,8 @@ exports.postEditProduct = (req, res, next) => {
 		price: price,
 		description: description,
 		imageUrl: imageUrl,
-        userId: req.user._id,
-        _id: id
+		userId: req.user._id,
+		_id: id
 	});
 
 	const errors = validationResult(req);
@@ -114,8 +129,8 @@ exports.postEditProduct = (req, res, next) => {
 		return res.status(422).render("admin/edit-product", {
 			docTitle: "Edit Product",
 			path: "/admin/edit-product",
-            editing: true,
-            hasError: true,
+			editing: true,
+			hasError: true,
 			product: product,
 			errorMessage: errors.array()[0].msg,
 			validationErrors: errors.array()
@@ -141,7 +156,12 @@ exports.postEditProduct = (req, res, next) => {
 				res.redirect("/admin/products");
 			});
 		})
-		.catch(err => console.log(err));
+		.catch(err => {
+			console.log(err);
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			next(error);
+		});
 };
 
 exports.postDeleteProduct = (req, res, next) => {
@@ -160,5 +180,10 @@ exports.postDeleteProduct = (req, res, next) => {
 				return res.redirect("/");
 			}
 		})
-		.catch(err => console.log(err));
+		.catch(err => {
+			console.log(err);
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			next(error);
+		});
 };

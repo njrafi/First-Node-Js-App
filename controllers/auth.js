@@ -91,7 +91,12 @@ exports.postLogin = (req, res, next) => {
 					res.redirect("/login");
 				});
 		})
-		.catch(err => console.log(err));
+		.catch(err => {
+			console.log(err);
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			next(error);
+		});
 };
 
 exports.postSignUp = (req, res, next) => {
@@ -134,7 +139,12 @@ exports.postSignUp = (req, res, next) => {
 		.then(result => {
 			console.log(result);
 		})
-		.catch(err => console.log(err));
+		.catch(err => {
+			console.log(err);
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			next(error);
+		});
 };
 
 exports.postLogout = (req, res, next) => {
@@ -180,7 +190,12 @@ exports.postReset = (req, res, next) => {
 				console.log("reset mail sent successfully");
 				console.log(result);
 			})
-			.catch(err => console.log(err));
+			.catch(err => {
+				console.log(err);
+				const error = new Error(err);
+				error.httpStatusCode = 500;
+				next(error);
+			});
 	});
 };
 
@@ -200,7 +215,12 @@ exports.getNewPassword = (req, res, next) => {
 				token: token
 			});
 		})
-		.catch(err => console.log(err));
+		.catch(err => {
+			console.log(err);
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			next(error);
+		});
 };
 
 exports.postNewPassword = (req, res, next) => {
@@ -247,7 +267,17 @@ exports.postNewPassword = (req, res, next) => {
 					console.log("reset successful mail sent successfully");
 					console.log(result);
 				})
-				.catch(err => console.log(err));
+				.catch(err => {
+					console.log(err);
+					const error = new Error(err);
+					error.httpStatusCode = 500;
+					next(error);
+				});
 		})
-		.catch(err => console.log(err));
+		.catch(err => {
+			console.log(err);
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			next(error);
+		});
 };

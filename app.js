@@ -8,9 +8,8 @@ const csrf = require("csurf");
 const flush = require("connect-flash");
 const secrets = require("./secrets");
 
-const mongoDbUri =
-    secrets.mongoDbUri
-    
+const mongoDbUri = secrets.mongoDbUri;
+
 const app = express();
 const store = new mongoDbStore({
 	uri: mongoDbUri,
@@ -51,10 +50,15 @@ app.use((req, res, next) => {
 
 	User.findById(req.session.user._id)
 		.then(user => {
+			if (!user) {
+				return next();
+			}
 			req.user = user;
 			next();
 		})
-		.catch(err => console.log(err));
+		.catch(err => {
+			throw new Error(err);
+		});
 });
 app.use((req, res, next) => {
 	res.locals.isLoggedIn = req.session.isLoggedIn;
@@ -62,10 +66,15 @@ app.use((req, res, next) => {
 	next();
 });
 
+// Registering Routes
 app.use("/admin", adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
+app.use("/500", errorController.get500Page);
 app.use(errorController.get404Page);
+app.use((error, req, res, next) => {
+	res.redirect("/500");
+});
 
 mongoose
 	.connect(mongoDbUri, {
