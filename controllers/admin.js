@@ -65,30 +65,36 @@ exports.getProducts = (req, res, next) => {
 exports.postAddProduct = (req, res, next) => {
 	console.log("In The postAddProduct call");
 	const title = req.body.title;
-	const imageUrl = req.body.imageUrl;
+	const image = req.file;
 	const price = req.body.price;
 	const description = req.body.description;
+
 	const product = new Product({
 		title: title,
 		price: price,
 		description: description,
-		imageUrl: imageUrl,
 		userId: req.user._id
 	});
 
 	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
+	if (!errors.isEmpty() || image == null) {
 		console.log(errors.array());
+		errorMessage = errors.array()[0].msg;
+		if (image == null) {
+			errorMessage = "Attached file is not an valid image.";
+		}
 		return res.status(422).render("admin/edit-product", {
 			docTitle: "Add Product",
 			path: "/admin/edit-product",
 			editing: false,
 			hasError: true,
 			product: product,
-			errorMessage: errors.array()[0].msg,
+			errorMessage: errorMessage,
 			validationErrors: errors.array()
 		});
 	}
+
+	product.imageUrl = "/" + image.path;
 
 	console.log("No validation error in adding product");
 
@@ -110,7 +116,7 @@ exports.postEditProduct = (req, res, next) => {
 	console.log("In The postEditProduct call");
 	const id = req.body.productId;
 	const title = req.body.title;
-	const imageUrl = req.body.imageUrl;
+	const image = req.file;
 	const price = req.body.price;
 	const description = req.body.description;
 
@@ -118,7 +124,6 @@ exports.postEditProduct = (req, res, next) => {
 		title: title,
 		price: price,
 		description: description,
-		imageUrl: imageUrl,
 		userId: req.user._id,
 		_id: id
 	});
@@ -147,7 +152,9 @@ exports.postEditProduct = (req, res, next) => {
 				return res.redirect("/");
 			}
 			product.title = title;
-			product.imageUrl = imageUrl;
+			if (image) {
+				product.imageUrl = "/" + image.path;
+			}
 			product.price = price;
 			product.description = description;
 			return product.save().then(result => {

@@ -16,9 +16,6 @@ router.post(
 			.isLength({ min: 3 })
 			.trim()
 			.withMessage("Enter a Valid Title with minimum Length of 3"),
-		body("imageUrl")
-			.isURL()
-			.withMessage("Enter a Valid Url"),
 		body("price")
 			.isFloat()
 			.withMessage("Enter a Valid Price"),
@@ -41,9 +38,6 @@ router.post(
 			.isLength({ min: 3 })
 			.trim()
 			.withMessage("Enter a Valid Title with minimum Length of 3"),
-		body("imageUrl")
-			.isURL()
-			.withMessage("Enter a Valid Url"),
 		body("price")
 			.isFloat()
 			.withMessage("Enter a Valid Price"),
