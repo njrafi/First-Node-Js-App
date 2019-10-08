@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport(
 		}
 	})
 );
-const { validationResult } = require("express-validator/check");
+const { validationResult } = require("express-validator");
 
 exports.getLogin = (req, res, next) => {
 	console.log("In Login Page");
