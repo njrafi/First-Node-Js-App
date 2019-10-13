@@ -2,6 +2,7 @@ const Product = require("../models/product");
 const Order = require("../models/order");
 const fs = require("fs");
 const path = require("path");
+const pdfDocument = require("pdfkit");
 
 exports.getProducts = (req, res, next) => {
 	console.log("In the Shop Products directory");
@@ -128,17 +129,43 @@ exports.getInvoice = (req, res, next) => {
 
 			const invoiceName = "invoice-" + orderId + ".pdf";
 			const invoicePath = path.join("data", "invoices", invoiceName);
-			const file = fs.createReadStream(invoicePath);
-			file.on("error", () => {
-				return next(new Error("File Not Found"));
+
+			const pdfDoc = new pdfDocument();
+			pdfDoc.pipe(fs.createWriteStream(invoicePath));
+			pdfDoc.pipe(res);
+
+			pdfDoc.fontSize(26).text("Invoice");
+			pdfDoc.text("---------------------------");
+
+			let totalPrice = 0;
+			order.products.forEach(prod => {
+				pdfDoc
+					.fontSize(16)
+					.text(
+						prod.product.title +
+							" - " +
+							prod.quantity.toString() +
+							"x - " +
+							prod.product.price.toString() +
+							" teka"
+					);
+				totalPrice += prod.quantity * prod.product.price;
 			});
-			console.log("Invoice found successfully");
+			pdfDoc.fontSize(26).text("---------------------------");
+			pdfDoc.text("Total Price: " + totalPrice + " teka");
+
+			pdfDoc.end();
+			// const file = fs.createReadStream(invoicePath);
+			// file.on("error", () => {
+			// 	return next(new Error("File Not Found"));
+			// });
+			console.log("Invoice Generated successfully");
 			res.setHeader("Content-Type", "application/pdf");
 			res.setHeader(
 				"Content-Disposition",
 				"attachment; filename = " + invoiceName + " "
 			);
-			file.pipe(res);
+			// file.pipe(res);
 		})
 		.catch(err => {
 			console.log(err);
