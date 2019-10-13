@@ -128,19 +128,17 @@ exports.getInvoice = (req, res, next) => {
 
 			const invoiceName = "invoice-" + orderId + ".pdf";
 			const invoicePath = path.join("data", "invoices", invoiceName);
-			fs.readFile(invoicePath, (err, data) => {
-				if (err) {
-					console.log(err);
-					return next(err);
-				}
-				console.log("Invoice found successfully");
-				res.setHeader("Content-Type", "application/pdf");
-				res.setHeader(
-					"Content-Disposition",
-					"attachment; filename = " + invoiceName + " "
-				);
-				res.send(data);
+			const file = fs.createReadStream(invoicePath);
+			file.on("error", () => {
+				return next(new Error("File Not Found"));
 			});
+			console.log("Invoice found successfully");
+			res.setHeader("Content-Type", "application/pdf");
+			res.setHeader(
+				"Content-Disposition",
+				"attachment; filename = " + invoiceName + " "
+			);
+			file.pipe(res);
 		})
 		.catch(err => {
 			console.log(err);
