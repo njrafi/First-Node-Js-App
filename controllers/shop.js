@@ -1,5 +1,7 @@
 const Product = require("../models/product");
 const Order = require("../models/order");
+const fs = require("fs");
+const path = require("path");
 
 exports.getProducts = (req, res, next) => {
 	console.log("In the Shop Products directory");
@@ -11,7 +13,12 @@ exports.getProducts = (req, res, next) => {
 				path: "/products"
 			});
 		})
-		.catch(err => console.log(err));
+		.catch(err => {
+			console.log(err);
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			next(error);
+		});
 };
 
 exports.getProduct = (req, res, next) => {
@@ -25,7 +32,12 @@ exports.getProduct = (req, res, next) => {
 				path: "/product"
 			});
 		})
-		.catch(err => console.log(err));
+		.catch(err => {
+			console.log(err);
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			next(error);
+		});
 };
 
 exports.getIndex = (req, res, next) => {
@@ -38,7 +50,12 @@ exports.getIndex = (req, res, next) => {
 				path: "/"
 			});
 		})
-		.catch(err => console.log(err));
+		.catch(err => {
+			console.log(err);
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			next(error);
+		});
 };
 
 exports.getCart = (req, res, next) => {
@@ -57,7 +74,12 @@ exports.getCart = (req, res, next) => {
 				path: "/cart"
 			});
 		})
-		.catch(err => console.log(err));
+		.catch(err => {
+			console.log(err);
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			next(error);
+		});
 };
 
 exports.getOrders = (req, res, next) => {
@@ -71,7 +93,12 @@ exports.getOrders = (req, res, next) => {
 				orders: orders
 			});
 		})
-		.catch(err => console.log(err));
+		.catch(err => {
+			console.log(err);
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			next(error);
+		});
 };
 
 exports.getCheckout = (req, res, next) => {
@@ -85,6 +112,44 @@ exports.getCheckout = (req, res, next) => {
 	});
 };
 
+exports.getInvoice = (req, res, next) => {
+	console.log("In the Get Invoice");
+	const orderId = req.params.orderId;
+	console.log("Invoice OrderId" + orderId);
+
+	Order.findById(orderId)
+		.then(order => {
+			if (!order) {
+				return next(new Error("No Order Found"));
+			}
+			if (order.user.userId.toString() !== req.user._id.toString()) {
+				return next(new Error("Unauthorized"));
+			}
+
+			const invoiceName = "invoice-" + orderId + ".pdf";
+			const invoicePath = path.join("data", "invoices", invoiceName);
+			fs.readFile(invoicePath, (err, data) => {
+				if (err) {
+					console.log(err);
+					return next(err);
+				}
+				console.log("Invoice found successfully");
+				res.setHeader("Content-Type", "application/pdf");
+				res.setHeader(
+					"Content-Disposition",
+					"attachment; filename = " + invoiceName + " "
+				);
+				res.send(data);
+			});
+		})
+		.catch(err => {
+			console.log(err);
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			next(error);
+		});
+};
+
 exports.postCart = (req, res, next) => {
 	console.log("In the Shop Post Cart directory");
 	console.log("product id " + req.body.productId);
@@ -96,7 +161,12 @@ exports.postCart = (req, res, next) => {
 			//console.log(result);
 			res.redirect("/cart");
 		})
-		.catch(err => console.log(err));
+		.catch(err => {
+			console.log(err);
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			next(error);
+		});
 };
 
 exports.postDeleteProductFromCart = (req, res, next) => {
@@ -110,7 +180,12 @@ exports.postDeleteProductFromCart = (req, res, next) => {
 		.then(result => {
 			res.redirect("/cart");
 		})
-		.catch(err => console.log(err));
+		.catch(err => {
+			console.log(err);
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			next(error);
+		});
 };
 
 exports.postOrder = (req, res, next) => {
@@ -127,7 +202,7 @@ exports.postOrder = (req, res, next) => {
 			const order = new Order({
 				products: products,
 				user: {
-					userId: req.user._id,
+					userId: req.user._id
 				}
 			});
 			console.log(order);
@@ -141,5 +216,10 @@ exports.postOrder = (req, res, next) => {
 			console.log("post order Successfully");
 			res.redirect("/orders");
 		})
-		.catch(err => console.log(err));
+		.catch(err => {
+			console.log(err);
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			next(error);
+		});
 };
