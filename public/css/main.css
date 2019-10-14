@@ -38,6 +38,7 @@ form {
     padding: 0 1.5rem;
     display: flex;
     align-items: center;
+    border-bottom: 2px solid rgb(6, 50, 107);
 }
 
 .main-header__nav {
@@ -241,6 +242,33 @@ form {
 .user-message--error {
     border-color: red;
     background: rgb(243, 134, 134)
+}
+
+.pagination {
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    text-align: center
+}
+
+.pagination a {
+    text-decoration: none;
+    color: #226BCA;
+    padding: 0.5rem;
+    border: 1px solid #226BCA;
+    margin: 0 1rem;
+}
+
+.pagination a:hover,
+.pagination a:active,
+.pagination a.active {
+    background-color: #226BCA;
+    color: white
+}
+
+/* The sticky class is added to the navbar with JS when it reaches its scroll position */
+.sticky {
+    position: fixed;
+    top: 0;
 }
 
 @media (min-width: 768px) {
