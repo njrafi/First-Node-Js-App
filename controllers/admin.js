@@ -174,7 +174,7 @@ exports.postEditProduct = (req, res, next) => {
 		});
 };
 
-exports.postDeleteProduct = (req, res, next) => {
+exports.deleteProduct = (req, res, next) => {
 	const id = req.params.productId;
 	console.log("In The postDeleteproduct call");
 	console.log("product id " + id);
@@ -192,15 +192,16 @@ exports.postDeleteProduct = (req, res, next) => {
 				console.log("product deleted successfully");
 
 				return req.user.deleteFromCart(id).then(result => {
-					res.redirect("/admin/products");
+					return res.status(200).json({ message: "Success!" });
 				});
 			} else {
 				console.log("trying to delete other's product");
-				return res.redirect("/");
+				return res.status(200).json({ message: "Success!" });
 			}
 		})
 		.catch(err => {
 			console.log(err);
+			res.status(500).json({ message: "Deleting Product Failed." });
 			const error = new Error(err);
 			error.httpStatusCode = 500;
 			next(error);
