@@ -32,7 +32,8 @@
 		"nodemon": "^1.19.1",
 		"pdfkit": "^0.10.0",
 		"pug": "^2.0.4",
-		"sequelize": "^5.19.4"
+		"sequelize": "^5.19.4",
+		"stripe": "^7.10.0"
 	},
 	"nodemonConfig": {
 		"ignore": [

@@ -8,11 +8,11 @@
         <% if(products.length > 0) { %>
         <ul class="cart__item-list">
             <% products.forEach(p => { %>
-               <% if (p.productId) { %>
+            <% if (p.productId) { %>
             <li class="cart__item">
                 <h1><%= p.productId.title %> ( <%= p.quantity %> pieces)</h1>
                 <form action="/delete-cart-product" method="POST">
-                    <input type='hidden' name="_csrf" value = <%= csrfToken %> >
+                    <input type='hidden' name="_csrf" value=<%= csrfToken %>>
                     <button class="btn danger" type="submit">Delete</button>
                     <input type='hidden' value="<%= p.productId._id %>" name="id">
                     <input type='hidden' value="<%= p.productId.price %>" name="price">
@@ -22,10 +22,12 @@
         </ul>
         <hr>
         <div class="centered">
-            <form action="/create-order"  method="POST">
+            <!-- <form action="/create-order"  method="POST">
                 <input type='hidden' name="_csrf" value = <%= csrfToken %> >
                 <button type="submit" class="btn">Order Now!</button>
-            </form>
+            </form> -->
+            <a class="btn" href="/checkout"> Order Now! </a>
+
         </div>
         <!-- <h2> Total Price: <%=products.totalPrice%> teka</h2> -->
         <% } else { %>

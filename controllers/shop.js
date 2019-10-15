@@ -3,7 +3,8 @@ const Order = require("../models/order");
 const fs = require("fs");
 const path = require("path");
 const pdfDocument = require("pdfkit");
-
+const secrets = require("../secrets");
+const stripe = require("stripe")(secrets.stripeSecretKey);
 const itemPerPage = 2;
 
 exports.getProducts = (req, res, next) => {
@@ -45,7 +46,7 @@ exports.getProduct = (req, res, next) => {
 
 exports.getIndex = (req, res, next) => {
 	console.log("In the Shop Index directory");
-    let page = +req.query.page || 1;
+	let page = +req.query.page || 1;
 	let totalProducts;
 
 	Product.find()
@@ -122,13 +123,34 @@ exports.getOrders = (req, res, next) => {
 
 exports.getCheckout = (req, res, next) => {
 	console.log("In the Shop Checkout directory");
-	Product.fetchAll(products => {
-		res.render("shop/checkout", {
-			prods: products,
-			docTitle: "Checkout",
-			path: "/checkout"
+
+	req.user
+		.populate("cart.items.productId")
+		.execPopulate()
+		.then(user => {
+			//console.log(user.cart.items);
+			const cartProducts = user.cart.items;
+			//console.log(cartProducts);
+			let totalSum = 0;
+			cartProducts.forEach(p => {
+				console.log(p);
+				totalSum += p.quantity * p.productId.price;
+			});
+			console.log("TotalSum: " + totalSum.toString());
+			res.render("shop/checkout", {
+				products: cartProducts,
+				totalSum: totalSum,
+				publishableKey: secrets.stripePublishableKey,
+				docTitle: "Checkout",
+				path: "/checkout"
+			});
+		})
+		.catch(err => {
+			console.log(err);
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			next(error);
 		});
-	});
 };
 
 exports.getInvoice = (req, res, next) => {
@@ -233,11 +255,18 @@ exports.postDeleteProductFromCart = (req, res, next) => {
 
 exports.postOrder = (req, res, next) => {
 	console.log("In the Shop post Order directory");
+
+	const token = req.body.stripeToken;
+	console.log(token);
+	let totalSum = 0;
+
 	req.user
 		.populate("cart.items.productId")
 		.execPopulate()
 		.then(user => {
-			console.log(user.cart.items);
+			user.cart.items.forEach(p => {
+				totalSum += p.quantity * p.productId.price;
+			});
 			const products = user.cart.items.map(i => {
 				return { quantity: i.quantity, product: { ...i.productId._doc } };
 			});
@@ -252,6 +281,20 @@ exports.postOrder = (req, res, next) => {
 			return order.save();
 		})
 		.then(result => {
+			const charge = stripe.charges.create(
+				{
+					amount: totalSum * 100,
+					currency: "usd",
+					source: token,
+					description: "Demo Order gg",
+					metadata: { order_id: result._id.toString() }
+				},
+				function(err, charge) {
+                    //TODO: Check if success then add to orders
+					console.log(err);
+					console.log(charge);
+				}
+			);
 			req.user.cart.items = [];
 			return req.user.save();
 		})
