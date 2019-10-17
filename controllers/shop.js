@@ -123,26 +123,46 @@ exports.getOrders = (req, res, next) => {
 
 exports.getCheckout = (req, res, next) => {
 	console.log("In the Shop Checkout directory");
+	let totalSum = 0;
+	let products;
 
 	req.user
 		.populate("cart.items.productId")
 		.execPopulate()
 		.then(user => {
 			//console.log(user.cart.items);
-			const cartProducts = user.cart.items;
+			products = user.cart.items;
 			//console.log(cartProducts);
-			let totalSum = 0;
-			cartProducts.forEach(p => {
+			products.forEach(p => {
 				console.log(p);
 				totalSum += p.quantity * p.productId.price;
 			});
 			console.log("TotalSum: " + totalSum.toString());
+			console.log(secrets.host + ":" + secrets.port + "/checkout/success");
+			return stripe.checkout.sessions.create({
+				payment_method_types: ["card"],
+				line_items: products.map(p => {
+					return {
+						name: p.productId.title,
+						description: p.productId.description,
+						amount: p.productId.price * 100,
+						currency: "usd",
+						quantity: p.quantity
+					};
+				}),
+				success_url: secrets.host + ":" + secrets.port + "/checkout/success",
+				cancel_url: secrets.host + ":" + secrets.port + "/checkout/cancel"
+			});
+		})
+		.then(session => {
+			console.log(session);
 			res.render("shop/checkout", {
-				products: cartProducts,
+				products: products,
 				totalSum: totalSum,
 				publishableKey: secrets.stripePublishableKey,
 				docTitle: "Checkout",
-				path: "/checkout"
+				path: "/checkout",
+				sessionId: session.id
 			});
 		})
 		.catch(err => {
@@ -290,11 +310,52 @@ exports.postOrder = (req, res, next) => {
 					metadata: { order_id: result._id.toString() }
 				},
 				function(err, charge) {
-                    //TODO: Check if success then add to orders
+					//TODO: Check if success then add to orders
 					console.log(err);
 					console.log(charge);
 				}
 			);
+			req.user.cart.items = [];
+			return req.user.save();
+		})
+		.then(result => {
+			console.log("post order Successfully");
+			res.redirect("/orders");
+		})
+		.catch(err => {
+			console.log(err);
+			const error = new Error(err);
+			error.httpStatusCode = 500;
+			next(error);
+		});
+};
+
+exports.getCheckoutSuccess = (req, res, next) => {
+	console.log("In the Shop getCheckoutSuccess directory");
+
+	let totalSum = 0;
+
+	req.user
+		.populate("cart.items.productId")
+		.execPopulate()
+		.then(user => {
+			user.cart.items.forEach(p => {
+				totalSum += p.quantity * p.productId.price;
+			});
+			const products = user.cart.items.map(i => {
+				return { quantity: i.quantity, product: { ...i.productId._doc } };
+			});
+
+			const order = new Order({
+				products: products,
+				user: {
+					userId: req.user._id
+				}
+			});
+			console.log(order);
+			return order.save();
+		})
+		.then(result => {
 			req.user.cart.items = [];
 			return req.user.save();
 		})
