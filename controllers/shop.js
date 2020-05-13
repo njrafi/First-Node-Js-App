@@ -148,8 +148,8 @@ exports.getCheckout = (req, res, next) => {
 						quantity: p.quantity
 					};
 				}),
-				success_url: process.env.host + ":" + process.env.port + "/checkout/success",
-				cancel_url: process.env.host + ":" + process.env.port + "/checkout/cancel"
+				success_url: process.env.HOSTNAME + ":" + process.env.PORT + "/checkout/success",
+				cancel_url: process.env.HOSTNAME + ":" + process.env.PORT + "/checkout/cancel"
 			});
 		})
 		.then(session => {
