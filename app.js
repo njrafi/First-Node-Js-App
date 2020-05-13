@@ -2,11 +2,15 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const path = require("path");
+const fs = require("fs");
 const session = require("express-session");
 const mongoDbStore = require("connect-mongodb-session")(session);
 const csrf = require("csurf");
 const flush = require("connect-flash");
 const multer = require("multer");
+const helmet = require("helmet");
+const compression = require("compression");
+const morgan = require("morgan");
 require("dotenv").config();
 
 const mongoDbUri = process.env.mongoDbUri;
@@ -54,6 +58,15 @@ app.set("views", "views");
 const adminRoutes = require("./routes/admin");
 const shopRoutes = require("./routes/shop");
 const authRoutes = require("./routes/auth");
+
+const accessLogStream = fs.createWriteStream(
+	path.join(__dirname, "access.log"),
+	{ flags: "a" }
+);
+
+app.use(compression());
+app.use(helmet());
+app.use(morgan("combined", { stream: accessLogStream }));
 
 app.use(
 	bodyParser.urlencoded({
