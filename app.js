@@ -6,16 +6,16 @@ const session = require("express-session");
 const mongoDbStore = require("connect-mongodb-session")(session);
 const csrf = require("csurf");
 const flush = require("connect-flash");
-const secrets = require("./secrets");
 const multer = require("multer");
+require("dotenv").config();
 
-const mongoDbUri = secrets.mongoDbUri;
+const mongoDbUri = process.env.mongoDbUri;
 
 const app = express();
 
 const store = new mongoDbStore({
 	uri: mongoDbUri,
-	collection: "sessions"
+	collection: "sessions",
 });
 
 const csrfProtection = csrf();
@@ -29,7 +29,7 @@ const fileStorage = multer.diskStorage({
 			null,
 			new Date().toISOString().replace(/:/g, "-") + "-" + file.originalname
 		);
-	}
+	},
 });
 
 const fileFilter = (req, file, cb) => {
@@ -57,7 +57,7 @@ const authRoutes = require("./routes/auth");
 
 app.use(
 	bodyParser.urlencoded({
-		extended: false
+		extended: false,
 	})
 );
 
@@ -69,10 +69,10 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/images", express.static(path.join(__dirname, "images")));
 app.use(
 	session({
-		secret: secrets.sessionSecretKey,
+		secret: process.env.sessionSecretKey,
 		resave: false,
 		saveUninitialized: false,
-		store: store
+		store: store,
 	})
 );
 app.use(csrfProtection);
@@ -90,14 +90,14 @@ app.use((req, res, next) => {
 	}
 
 	User.findById(req.session.user._id)
-		.then(user => {
+		.then((user) => {
 			if (!user) {
 				return next();
 			}
 			req.user = user;
 			next();
 		})
-		.catch(err => {
+		.catch((err) => {
 			throw new Error(err);
 		});
 });
@@ -112,15 +112,14 @@ app.use((error, req, res, next) => {
 	console.log(error);
 	res.redirect("/500");
 });
-
 mongoose
 	.connect(mongoDbUri, {
 		useNewUrlParser: true,
-		useUnifiedTopology: true
+		useUnifiedTopology: true,
 	})
-	.then(result => {
+	.then((result) => {
 		console.log("connected to mongoDb Database");
-		console.log("server started at port " + secrets.port);
-		app.listen(secrets.port);
+		console.log("server started at port " + process.env.PORT || 3000);
+		app.listen(process.env.PORT || 3000);
 	})
-	.catch(err => console.log(err));
+	.catch((err) => console.log(err));

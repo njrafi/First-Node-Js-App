@@ -3,11 +3,10 @@ const bcrypt = require("bcryptjs");
 const nodemailer = require("nodemailer");
 const sendGridTransport = require("nodemailer-sendgrid-transport");
 const crypto = require("crypto");
-const secrets = require("../secrets");
 const transporter = nodemailer.createTransport(
 	sendGridTransport({
 		auth: {
-			api_key: secrets.sendGridApi
+			api_key: process.env.sendGridApi
 		}
 	})
 );
@@ -181,7 +180,7 @@ exports.postReset = (req, res, next) => {
 					subject: "Password reset",
 					html: `
                         <p> You requested a password request </p>
-                        <p> Click this <a href="${secrets.host}:${secrets.port}/reset/${token}" >link</a> to set a new password. </p>
+                        <p> Click this <a href="${process.env.host}:${process.env.port}/reset/${token}" >link</a> to set a new password. </p>
 
                     `
 				});

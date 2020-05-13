@@ -1,0 +1,7 @@
+mongoDbUri=
+sendGridApi= 
+sessionSecretKey = 
+port =
+host = 
+stripeSecretKey = 
+stripePublishableKey = 

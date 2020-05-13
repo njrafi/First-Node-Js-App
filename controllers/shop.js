@@ -3,8 +3,7 @@ const Order = require("../models/order");
 const fs = require("fs");
 const path = require("path");
 const pdfDocument = require("pdfkit");
-const secrets = require("../secrets");
-const stripe = require("stripe")(secrets.stripeSecretKey);
+const stripe = require("stripe")(process.env.stripeSecretKey);
 const itemPerPage = 2;
 
 exports.getProducts = (req, res, next) => {
@@ -138,7 +137,6 @@ exports.getCheckout = (req, res, next) => {
 				totalSum += p.quantity * p.productId.price;
 			});
 			console.log("TotalSum: " + totalSum.toString());
-			console.log(secrets.host + ":" + secrets.port + "/checkout/success");
 			return stripe.checkout.sessions.create({
 				payment_method_types: ["card"],
 				line_items: products.map(p => {
@@ -150,8 +148,8 @@ exports.getCheckout = (req, res, next) => {
 						quantity: p.quantity
 					};
 				}),
-				success_url: secrets.host + ":" + secrets.port + "/checkout/success",
-				cancel_url: secrets.host + ":" + secrets.port + "/checkout/cancel"
+				success_url: process.env.host + ":" + process.env.port + "/checkout/success",
+				cancel_url: process.env.host + ":" + process.env.port + "/checkout/cancel"
 			});
 		})
 		.then(session => {
@@ -159,7 +157,7 @@ exports.getCheckout = (req, res, next) => {
 			res.render("shop/checkout", {
 				products: products,
 				totalSum: totalSum,
-				publishableKey: secrets.stripePublishableKey,
+				publishableKey: process.env.stripePublishableKey,
 				docTitle: "Checkout",
 				path: "/checkout",
 				sessionId: session.id
